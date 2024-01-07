@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>German Closure Text Prep Generator for B1.2 Level</title>
+    <!-- Include Tailwind CSS styles -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <!-- Include Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <style>
+      .dark-theme {
+        background-color: #1a202c;
+        color: #a0aec0;
+      }
+      .light-theme {
+        background-color: #edf2f7;
+        color: #2d3748;
+      }
+    </style>
+  </head>
+
+  <body
+    id="themeBody"
+    class="dark-theme min-h-screen flex flex-col justify-center items-center p-5 relative"
+  >
+    <button
+      id="themeButton"
+      class="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 mb-5 absolute top-5 right-5"
+    >
+      <i id="themeIcon" class="fas fa-sun"></i>
+    </button>
+    <h1 class="text-5xl mt-10 mb-8 text-center">
+      German Closure Text Prep Generator for B1.2 Level
+    </h1>
+    <button
+      type="button"
+      id="generateSampleButton"
+      class="bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 mb-5"
+    >
+      Generate Sample C-Test
+    </button>
+    <form
+      method="POST"
+      class="bg-white p-6 rounded-lg shadow-lg max-w-3xl w-full"
+    >
+      <label for="input_text" class="block text-gray-600"
+        >Enter your own text:</label
+      >
+      <textarea
+        id="input_text"
+        name="input_text"
+        rows="4"
+        cols="50"
+        class="border border-gray-300 rounded-lg p-2 w-full mb-4"
+        required
+      >
+{{ input_text }}</textarea
+      >
+      <div class="flex space-x-4">
+        <button
+          type="submit"
+          class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
+          Generate C-Test
+        </button>
+        <button
+          type="button"
+          id="clearButton"
+          class="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
+        >
+          Clear
+        </button>
+      </div>
+    </form>
+    <br />
+    {% if ctest %}
+    <h2 class="text-2xl mt-4">C-Test:</h2>
+    <p
+      class="bg-white rounded-lg p-4 shadow-md max-w-3xl w-full result_paragraph"
+    >
+      {{ ctest }}
+    </p>
+    {% endif %}
+
+    <!-- Button to reveal the original test in modal -->
+    <button
+      id="revealOriginalTestButton"
+      type="button"
+      class="btn btn-primary"
+      style="display: none"
+      data-bs-toggle="modal"
+      data-bs-target="#originalTestModal"
+    ></button>
+
+    <script>
+      document
+        .getElementById("clearButton")
+        .addEventListener("click", function () {
+          document.getElementById("input_text").value = "";
+          document.querySelector(".result_paragraph").textContent =
+            "No content available. Paste text in space above to generate a C-Test";
+        });
+      document
+        .getElementById("generateSampleButton")
+        .addEventListener("click", function () {
+          // Make an AJAX request to the Flask backend to generate a random sample C-Test
+          fetch("/generate_sample_ctest", {
+            method: "POST",
+          })
+            .then((response) => response.json()) // Parse the response as JSON
+            .then((data) => {
+              // Update the result_paragraph with the generated C-Test
+              document.querySelector(".result_paragraph").textContent =
+                data.ctest;
+
+              // Update the input_text and ctest values in the textarea
+              document.getElementById("input_text").value = data.input_text;
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        });
+    </script>
+    <script>
+      document
+        .getElementById("generateSampleButton")
+        .addEventListener("click", function () {
+          fetch("/generate_sample_ctest", {
+            method: "POST",
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              document.getElementById("input_text").value = data.input_text;
+              // Assuming you have a paragraph with id 'ctest' to display the generated c-test
+              document.getElementById("ctest").innerText = data.ctest;
+            });
+        });
+    </script>
+    <script>
+      // Add event listener for the theme button
+      document
+        .getElementById("themeButton")
+        .addEventListener("click", function () {
+          const body = document.getElementById("themeBody");
+          const icon = document.getElementById("themeIcon");
+          if (body.classList.contains("light-theme")) {
+            body.classList.remove("light-theme");
+            body.classList.add("dark-theme");
+            icon.classList.remove("fa-sun");
+            icon.classList.add("fa-moon");
+          } else {
+            body.classList.remove("dark-theme");
+            body.classList.add("light-theme");
+            icon.classList.remove("fa-moon");
+            icon.classList.add("fa-sun");
+          }
+        });
+    </script>
+  </body>
+</html>
